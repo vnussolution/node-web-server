@@ -14,17 +14,19 @@ app.use((req, res, next) => {
     var log = `${now}: ${req.method} : ${req.url}`;
     console.log(log);
     fs.appendFile('server.log', log + '\n', (err) => {
-        console.log(' ERROR MESSAGE: ', err);
+        if (err)
+            console.log(' ERROR MESSAGE::111 ', err);
     });
-
+    next();
 });
 
-app.use((req, res, next) => {
-    res.render('mantainance.hbs', {
-        message: 'be right back;;',
-        page: 'mantainance'
-    });
-});
+// app.use((req, res, next) => {
+//     res.render('mantainance.hbs', {
+//         message: 'be right back;;',
+//         page: 'mantainance',
+
+//     });
+// });
 
 
 hbs.registerPartials(__dirname + '/views/partials');
