@@ -5,6 +5,7 @@ const fs = require('fs');
 const port = process.env.PORT || 3000;
 var app = express();
 
+console.log('11111');
 
 app.set('view engine', 'hbs');
 app.use(express.static(__dirname + '/public'));
@@ -59,7 +60,7 @@ app.get('/bad', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`server is up on port ${port}`);
+    console.log(`server is up on port: ${port}`);
 });
 
 
