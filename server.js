@@ -5,7 +5,6 @@ const fs = require('fs');
 const port = process.env.PORT || 3000;
 var app = express();
 
-console.log('11111');
 
 app.set('view engine', 'hbs');
 app.use(express.static(__dirname + '/public'));
@@ -52,6 +51,14 @@ app.get('/about', (req, res) => {
     res.render('about.hbs', {
         page: 'About page',
         message: ' message about page',
+        currentYear: new Date().getFullYear()
+    });
+});
+
+app.get('/projects', (req, res) => {
+    res.render('projects.hbs', {
+        page: 'projects page',
+        message: ' message about projects',
         currentYear: new Date().getFullYear()
     });
 });
