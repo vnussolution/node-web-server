@@ -1,12 +1,15 @@
 const express = require('express');
 const hbs = require('hbs');
 const fs = require('fs');
+var bodyParser = require('body-parser');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3100;
 var app = express();
 
 
 app.set('view engine', 'hbs');
+
+app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
 app.use((req, res, next) => {
     var now = new Date().toString();
@@ -82,8 +85,19 @@ app.get('/events/:id', (req, res) => {
     res.send(result);
 });
 
-app.post('/event', (req, res) => {
-
+app.post('/events', (req, res) => {
+    var event = req.body;
+    event.id = EVENTS.length + 1;
+    event.sessions = [];
+    if (event.name) {
+        EVENTS.push(event);
+        res.status(200).send(event);
+    }
+    else {
+        res.status(400).send('invalid event');
+    }
+    //  console.log(' POST /events: ', req.body);
+    //res.send(JSON.stringify(EVENTS));
 
 });
 
@@ -407,3 +421,64 @@ const EVENTS = [
         ]
     }
 ]
+
+
+
+
+/////////////////////////////////
+/**
+ * Traverses a javascript object, and deletes all circular values
+ * @param source object to remove circular references from
+ * @param censoredMessage optional: what to put instead of censored values
+ * @param censorTheseItems should be kept null, used in recursion
+ * @returns {undefined}
+ */
+function preventCircularJson(source, censoredMessage, censorTheseItems) {
+    //init recursive value if this is the first call
+    censorTheseItems = censorTheseItems || [source];
+    //default if none is specified
+    censoredMessage = censoredMessage || "CIRCULAR_REFERENCE_REMOVED";
+    //values that have allready apeared will be placed here:
+    var recursiveItems = {};
+    //initaite a censored clone to return back
+    var ret = {};
+    //traverse the object:
+    for (var key in source) {
+        var value = source[key]
+        if (typeof value == "object") {
+            //re-examine all complex children again later:
+            recursiveItems[key] = value;
+        } else {
+            //simple values copied as is
+            ret[key] = value;
+        }
+    }
+    //create list of values to censor:
+    var censorChildItems = [];
+    for (var key in recursiveItems) {
+        var value = source[key];
+        //all complex child objects should not apear again in children:
+        censorChildItems.push(value);
+    }
+    //censor all circular values
+    for (var key in recursiveItems) {
+        var value = source[key];
+        var censored = false;
+        censorTheseItems.forEach(function (item) {
+            if (item === value) {
+                censored = true;
+            }
+        });
+        if (censored) {
+            //change circular values to this
+            value = censoredMessage;
+        } else {
+            //recursion:
+            value = preventCircularJson(value, censoredMessage, censorChildItems.concat(censorTheseItems));
+        }
+        ret[key] = value
+
+    }
+
+    return ret;
+}
