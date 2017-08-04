@@ -87,22 +87,43 @@ app.get('/events/:id', (req, res) => {
 
 app.post('/events', (req, res) => {
     var event = req.body;
-    event.id = EVENTS.length + 1;
-    event.sessions = [];
-    if (event.name) {
-        EVENTS.push(event);
+    if (event.id) {
+        let index = EVENTS.findIndex(x => x.id == event.id);
+        EVENTS[index] = event;
         res.status(200).send(event);
+    } else {
+        event.id = EVENTS.length + 1;
+        event.sessions = [];
+        if (event.name) {
+            EVENTS.push(event);
+            res.status(200).send(event);
+        }
     }
-    else {
-        res.status(400).send('invalid event');
-    }
+
+    res.status(400).send('invalid event');
     //  console.log(' POST /events: ', req.body);
     //res.send(JSON.stringify(EVENTS));
 
 });
 
-app.put('/event', (req, res) => {
 
+
+app.get('/sessions/search', (req, res) => {
+    let search = req.query.search.toLocaleLowerCase();
+    let results = [];
+    let matchingSessions = [];
+    EVENTS.forEach(event => {
+        matchingSessions = event.sessions.filter(session => session.name.toLocaleLowerCase().indexOf(search) > -1)
+
+        matchingSessions = matchingSessions.map((session) => {
+            session.eventId = event.id;
+            return session;
+        })
+        results = results.concat(matchingSessions)
+    });
+
+
+    res.send(results);
 
 })
 
