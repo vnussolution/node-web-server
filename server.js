@@ -78,7 +78,7 @@ app.get('/events/:id', (req, res) => {
     var id = +req.params.id;
     var result;
     result = EVENTS.find(event => event.id === id);
-    if (!result) return res.status(404).send('Id not found');
+    // if (!result) return res.status(404).send('Id not found');
     res.send(result);
 });
 
