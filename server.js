@@ -73,11 +73,11 @@ app.get('/bad', (req, res) => {
 
 
 ////////////// ng2-fundamental ///////////////////////////////
-app.get('/events', (req, res) => {
+app.get('/api/events', (req, res) => {
     res.send(EVENTS);
 });
 
-app.get('/events/:id', (req, res) => {
+app.get('/api/events/:id', (req, res) => {
     var id = +req.params.id;
     var result;
     result = EVENTS.find(event => event.id === id);
@@ -85,7 +85,7 @@ app.get('/events/:id', (req, res) => {
     res.send(result);
 });
 
-app.post('/events', (req, res) => {
+app.post('/api/events', (req, res) => {
     var event = req.body;
     if (event.id) {
         let index = EVENTS.findIndex(x => x.id == event.id);
@@ -106,9 +106,7 @@ app.post('/events', (req, res) => {
 
 });
 
-
-
-app.get('/sessions/search', (req, res) => {
+app.get('/api/sessions/search', (req, res) => {
     let search = req.query.search.toLocaleLowerCase();
     let results = [];
     let matchingSessions = [];
@@ -121,11 +119,38 @@ app.get('/sessions/search', (req, res) => {
         })
         results = results.concat(matchingSessions)
     });
-
-
     res.send(results);
-
 })
+
+app.post('/api/events/:eventId/sessions/:sessionId/voters/:voter', (req, res) => {
+    let eventId = req.params.eventId;
+    let sessionId = req.params.sessionId;
+    let voter = req.params.voter;
+    let eventIndex = EVENTS.findIndex(x => x.id == eventId);
+    let sessionIndex = EVENTS[eventIndex].sessions.findIndex(x => x.id == sessionId);
+
+    let voters = EVENTS[eventIndex].sessions[sessionIndex].voters
+    let voterExist = voters.findIndex(x => x == voter);
+    console.log('voter exists', voterExist)
+    if (voterExist == -1) {
+        voters.push(voter);
+    }
+
+    res.sendStatus(200);
+});
+
+app.delete('/api/events/:eventId/sessions/:sessionId/voters/:voter', (req, res) => {
+    let eventId = req.params.eventId;
+    let sessionId = req.params.sessionId;
+    let voter = req.params.voter;
+    let eventIndex = EVENTS.findIndex(x => x.id == eventId);
+    let sessionIndex = EVENTS[eventIndex].sessions.findIndex(x => x.id == sessionId);
+
+    let voters = EVENTS[eventIndex].sessions[sessionIndex].voters.filter(v => v != voter);
+    EVENTS[eventIndex].sessions[sessionIndex].voters = voters;
+    res.sendStatus(200);
+});
+
 
 ///////////////////////////////////////////
 
