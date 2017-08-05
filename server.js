@@ -207,6 +207,23 @@ app.post('/api/login', (req, res) => {
 
 });
 
+app.put('/api/users/:username', (req, res) => {
+    let username = req.params.username;
+    let user = UserFakeDB.filter(x => x.username === username);
+    user.firstName = req.body.firstName;
+    user.lastName = req.body.lastName;
+});
+
+app.post('/api/logout', (req, res) => {
+    let username = req.body.username;
+
+    let index = UserFakeDB.findIndex(x => x.username === username);
+
+    UserFakeDB[index].token = '';
+    console.log('logout:', username);
+    res.header('x-authFrank', '').send(username + ' logged out');
+});
+
 ///////////////////////////////////////////
 
 app.listen(port, () => {
