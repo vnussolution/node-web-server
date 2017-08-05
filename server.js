@@ -209,9 +209,10 @@ app.post('/api/login', (req, res) => {
 
 app.put('/api/users/:username', (req, res) => {
     let username = req.params.username;
-    let user = UserFakeDB.filter(x => x.username === username);
-    user.firstName = req.body.firstName;
-    user.lastName = req.body.lastName;
+    let index = UserFakeDB.findIndex(x => x.username === username);
+    UserFakeDB[index].firstName = req.body.firstName;
+    UserFakeDB[index].lastName = req.body.lastName;
+
 });
 
 app.post('/api/logout', (req, res) => {
