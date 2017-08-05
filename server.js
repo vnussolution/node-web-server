@@ -1,6 +1,8 @@
 const express = require('express');
 const hbs = require('hbs');
 const fs = require('fs');
+const _ = require('lodash');
+
 var bodyParser = require('body-parser');
 
 const port = process.env.PORT || 3100;
@@ -39,6 +41,41 @@ hbs.registerHelper('screamIt', (text) => {
     return text.toUpperCase();
 })
 
+
+
+///////////////////////////////////////////////User//////
+let UserFakeDB = [
+    { username: 'frank', password: 'hello', token: 'frank123' },
+    { username: 'truc', password: 'hello', token: '' },
+    { username: 'quyen', password: 'hello', token: '' }
+];
+
+let authenticate = (req, res, next) => {
+    console.log('----------------------------------==', req.header('x-authFrank'));
+    let token = req.header('x-authFrank');
+
+    let user = UserFakeDB.filter(x => x.token === token);
+    if (!user) return res.status(401).send(' authenticate required!!!');
+    req.user = user;
+    req.token = token;
+    next();
+
+};
+
+generateMyAuthToken = function (username) {
+    var access = 'authFrank';
+    var token = username + '123';
+
+    let index = UserFakeDB.findIndex(u => u.username === username);
+
+    UserFakeDB[index].token = token;
+    return token;
+}
+
+removeToken = function (username, token) {
+    return _.remove(UserFakeDB.filter(u => u == username).map(x => x.tokens), token);
+}
+////////////////////////////////////////////////////////////////////////////////////////
 
 
 app.get('/', (req, res) => {
@@ -151,6 +188,24 @@ app.delete('/api/events/:eventId/sessions/:sessionId/voters/:voter', (req, res) 
     res.sendStatus(200);
 });
 
+app.get('/api/currentIdentity', authenticate, (req, res) => {
+    console.log('api/currentIden ', req.user);
+    res.send(req.user);
+});
+
+app.post('/api/login', (req, res) => {
+    console.log('api/login', req.body);
+    let username = req.body.username;
+    let password = req.body.password;
+
+    let user = UserFakeDB.filter(x => x.username === username && x.password === password);
+    if (user) {
+        const token = generateMyAuthToken(username);
+        res.header('x-authFrank', token).send(user);
+    }
+    res.status(401).send('wrong..');
+
+});
 
 ///////////////////////////////////////////
 
