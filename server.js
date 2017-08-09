@@ -2,6 +2,7 @@ const express = require('express');
 const hbs = require('hbs');
 const fs = require('fs');
 const _ = require('lodash');
+const cors = require('cors');
 
 var bodyParser = require('body-parser');
 
@@ -11,6 +12,7 @@ var app = express();
 
 app.set('view engine', 'hbs');
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
 app.use((req, res, next) => {
